@@ -1,0 +1,7 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": ["appservice", "japaneast", "satfstate", "tfstate", "tfvars"],
+  "ignoreWords": [],
+  "ignorePaths": ["sp-credentials.json"]
+}

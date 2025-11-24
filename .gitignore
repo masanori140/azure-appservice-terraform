@@ -1,0 +1,18 @@
+# Terraform
+.terraform.lock.hcl
+.terragrunt-cache
+*.tfstate
+*.tfstate.*
+**/.terraform/*
+**/terraform.tfvars
+
+# Azure credentials
+sp-credentials*.json
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Misc
+.DS_Store

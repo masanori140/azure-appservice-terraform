@@ -1,0 +1,33 @@
+{
+  // エディタ基本設定
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+
+  // Terraform設定
+  "terraform.experimentalFeatures.validateOnSave": true,
+  "terraform.languageServer.enable": true,
+  "[terraform]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.formatOnSave": true
+  },
+  "[terraform-vars]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.formatOnSave": true
+  },
+
+  // ファイル除外設定
+  "files.exclude": {
+    "**/.terraform": true,
+    "**/.terraform.lock.hcl": false
+  },
+  "search.exclude": {
+    "**/.terraform": true,
+    "**/sp-credentials.json": true
+  }
+}

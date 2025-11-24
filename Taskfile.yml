@@ -1,0 +1,166 @@
+version: '3'
+
+vars:
+  docker_run: docker compose run --rm terraform
+  tf_log: info
+  env: xxxx
+  module: xxxx
+  auto_approve: "false"
+
+tasks:
+  # ==============================================================================
+  # Information
+  # ==============================================================================
+
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  # ==============================================================================
+  # Docker Environment
+  # ==============================================================================
+
+  shell:
+    desc: Open bash shell in Docker container
+    cmds:
+      - "{{.docker_run}} bash"
+
+  # ==============================================================================
+  # Terragrunt Format
+  # ==============================================================================
+
+  format:
+    desc: Format all terragrunt.hcl files
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'terragrunt hclfmt /app/terraform'
+
+  # ==============================================================================
+  # Terragrunt Commands
+  # ==============================================================================
+
+  init:
+    desc: Initialize Terragrunt
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}}/{{.module}} &&
+        terragrunt
+        --log-level {{.tf_log}}
+        --non-interactive
+        init'
+
+  plan:
+    desc: Plan Terragrunt
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}}/{{.module}} &&
+        terragrunt
+        --log-level {{.tf_log}}
+        plan'
+
+  apply:
+    desc: Apply Terragrunt (use auto_approve=true for --auto-approve)
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}}/{{.module}} &&
+        terragrunt
+        --log-level {{.tf_log}}
+        apply{{if eq .auto_approve "true"}} --auto-approve{{end}}'
+
+  destroy:
+    desc: Destroy Terragrunt (use auto_approve=true for --auto-approve)
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}}/{{.module}} &&
+        terragrunt
+        --log-level {{.tf_log}}
+        destroy{{if eq .auto_approve "true"}} --auto-approve{{end}}'
+
+  validate:
+    desc: Validate Terraform configuration
+    deps: [init]
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}}/{{.module}} &&
+        terragrunt
+        --log-level {{.tf_log}}
+        validate'
+
+  # ==============================================================================
+  # Advanced Commands
+  # ==============================================================================
+
+  init-all:
+    desc: Initialize all modules in environment
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}} &&
+        terragrunt
+        --log-level {{.tf_log}}
+        --non-interactive
+        run --all init'
+
+  plan-all:
+    desc: Plan all modules in environment
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}} &&
+        terragrunt
+        --log-level {{.tf_log}}
+        run --all plan'
+
+  apply-all:
+    desc: Apply all modules in environment (use auto_approve=true for --non-interactive)
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}} &&
+        terragrunt
+        --log-level {{.tf_log}}{{if eq .auto_approve "true"}}
+        --non-interactive{{end}}
+        run --all apply'
+
+  destroy-all:
+    desc: Destroy all modules in environment (use auto_approve=true for --non-interactive)
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}} &&
+        terragrunt
+        --log-level {{.tf_log}}{{if eq .auto_approve "true"}}
+        --non-interactive{{end}}
+        run --all destroy'
+
+  # ==============================================================================
+  # State Management
+  # ==============================================================================
+
+  state-list:
+    desc: List resources in Terraform state for current module
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}}/{{.module}} &&
+        terragrunt
+        --log-level {{.tf_log}}
+        state list'
+
+  state-list-all:
+    desc: List resources in Terraform state for all modules
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'cd /app/terraform/environments/{{.env}} &&
+        terragrunt
+        --log-level {{.tf_log}}
+        run --all state list'
