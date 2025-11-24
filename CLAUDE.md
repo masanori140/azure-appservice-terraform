@@ -8,6 +8,24 @@ Azure App Service リソースを管理するための Terragrunt ベースの I
 
 ## アーキテクチャ
 
+### 3層アーキテクチャ
+
+このプロジェクトは3層アーキテクチャパターンを採用しています：
+
+```
+terraform/
+  resources/      # 第1層: Terraform公式リソースの薄いラッパー
+  modules/        # 第2層: ビジネスロジック（moduleの組み合わせ）
+  environments/   # 第3層: 環境固有の設定
+```
+
+**重要な原則**:
+- **resources層**: `resource`ブロックのみ、全て変数化
+- **modules層**: `module`ブロックのみ（`resource`ブロックは使用禁止）
+- **environments層**: Terragrunt設定のみ
+
+詳細なコーディング規約は `TERRAFORM_GUIDE.md` を参照してください。
+
 ### コンテナ化されたワークフロー
 
 すべての Terraform/Terragrunt 操作は Docker コンテナ内で実行され、ツールのバージョンを統一します：
@@ -22,6 +40,18 @@ Docker セットアップにはセキュリティのためのチェックサム�
 想定される構造（`./terraform/` 配下に作成）：
 ```
 terraform/
+  resources/
+    <category>/
+      <resource>/       # 例: network/vnet, compute/app-service
+        main.tf
+        variables.tf
+        outputs.tf
+  modules/
+    <module>/           # 例: vnet, app-service
+      data.tf
+      *.tf
+      variables.tf
+      outputs.tf
   environments/
     {env}/              # 環境名（例: dev, staging, prod）
       {module}/         # モジュール名（例: app-service, database）
