@@ -1,8 +1,8 @@
-version: '3'
+version: "3"
 
 vars:
   docker_run: docker compose run --rm terraform
-  tf_log: info
+  log_level: info
   env: xxxx
   module: xxxx
   auto_approve: "false"
@@ -49,7 +49,7 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}}/{{.module}} &&
         terragrunt
-        --log-level {{.tf_log}}
+        --log-level {{.log_level}}
         --non-interactive
         init'
 
@@ -60,7 +60,7 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}}/{{.module}} &&
         terragrunt
-        --log-level {{.tf_log}}
+        --log-level {{.log_level}}
         plan'
 
   apply:
@@ -70,7 +70,7 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}}/{{.module}} &&
         terragrunt
-        --log-level {{.tf_log}}
+        --log-level {{.log_level}}
         apply{{if eq .auto_approve "true"}} --auto-approve{{end}}'
 
   destroy:
@@ -80,7 +80,7 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}}/{{.module}} &&
         terragrunt
-        --log-level {{.tf_log}}
+        --log-level {{.log_level}}
         destroy{{if eq .auto_approve "true"}} --auto-approve{{end}}'
 
   validate:
@@ -91,7 +91,7 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}}/{{.module}} &&
         terragrunt
-        --log-level {{.tf_log}}
+        --log-level {{.log_level}}
         validate'
 
   # ==============================================================================
@@ -105,7 +105,7 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}} &&
         terragrunt
-        --log-level {{.tf_log}}
+        --log-level {{.log_level}}
         --non-interactive
         run --all init'
 
@@ -116,7 +116,7 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}} &&
         terragrunt
-        --log-level {{.tf_log}}
+        --log-level {{.log_level}}
         run --all plan'
 
   apply-all:
@@ -126,7 +126,7 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}} &&
         terragrunt
-        --log-level {{.tf_log}}{{if eq .auto_approve "true"}}
+        --log-level {{.log_level}}{{if eq .auto_approve "true"}}
         --non-interactive{{end}}
         run --all apply'
 
@@ -137,7 +137,7 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}} &&
         terragrunt
-        --log-level {{.tf_log}}{{if eq .auto_approve "true"}}
+        --log-level {{.log_level}}{{if eq .auto_approve "true"}}
         --non-interactive{{end}}
         run --all destroy'
 
@@ -152,7 +152,7 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}}/{{.module}} &&
         terragrunt
-        --log-level {{.tf_log}}
+        --log-level {{.log_level}}
         state list'
 
   state-list-all:
@@ -162,5 +162,5 @@ tasks:
         {{.docker_run}} bash -c
         'cd /app/terraform/environments/{{.env}} &&
         terragrunt
-        --log-level {{.tf_log}}
+        --log-level {{.log_level}}
         run --all state list'

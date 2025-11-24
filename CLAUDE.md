@@ -115,9 +115,9 @@ task
 
 ### ログ出力
 
-`tf_log` 変数を設定して Terraform のログ詳細度を調整：
+`log_level` 変数を設定して Terraform のログ詳細度を調整：
 ```bash
-task plan env=dev module=app-service tf_log=debug
+task plan env=dev module=app-service log_level=debug
 ```
 
 有効なレベル: trace, debug, info, warn, error
