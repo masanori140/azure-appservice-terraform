@@ -147,7 +147,17 @@ fi
 # Set Subscription
 # ==============================================================================
 info "サブスクリプションを設定中..."
-az account set --subscription "$SUBSCRIPTION_ID"
+if ! az account set --subscription "$SUBSCRIPTION_ID" &> /dev/null; then
+  error "サブスクリプション '$SUBSCRIPTION_ID' の設定に失敗しました"
+  exit 1
+fi
+
+# Verify subscription is set correctly
+ACTUAL_SUBSCRIPTION_ID=$(az account show --query id -o tsv 2>/dev/null)
+if [ "$ACTUAL_SUBSCRIPTION_ID" != "$SUBSCRIPTION_ID" ]; then
+  error "サブスクリプションの設定が正しくありません。期待: $SUBSCRIPTION_ID, 実際: $ACTUAL_SUBSCRIPTION_ID"
+  exit 1
+fi
 success "サブスクリプション設定完了"
 
 # ==============================================================================
@@ -179,13 +189,46 @@ else
 fi
 
 # ==============================================================================
+# Register Storage Provider (if needed)
+# ==============================================================================
+info "Microsoft.Storage リソースプロバイダーの登録状態を確認中..."
+STORAGE_PROVIDER_STATE=$(az provider show --namespace Microsoft.Storage --query "registrationState" -o tsv 2>/dev/null || echo "NotRegistered")
+
+if [ "$STORAGE_PROVIDER_STATE" != "Registered" ]; then
+  warning "Microsoft.Storage リソースプロバイダーが未登録です。登録を開始します..."
+  az provider register --namespace Microsoft.Storage --output none
+
+  info "リソースプロバイダーの登録完了を待機中（最大5分）..."
+  TIMEOUT=300
+  ELAPSED=0
+  while [ $ELAPSED -lt $TIMEOUT ]; do
+    CURRENT_STATE=$(az provider show --namespace Microsoft.Storage --query "registrationState" -o tsv 2>/dev/null || echo "NotRegistered")
+    if [ "$CURRENT_STATE" = "Registered" ]; then
+      success "Microsoft.Storage リソースプロバイダーの登録が完了しました"
+      break
+    fi
+    sleep 10
+    ELAPSED=$((ELAPSED + 10))
+    echo -n "."
+  done
+  echo ""
+
+  if [ "$(az provider show --namespace Microsoft.Storage --query "registrationState" -o tsv 2>/dev/null)" != "Registered" ]; then
+    error "リソースプロバイダーの登録がタイムアウトしました。手動で登録してください: az provider register --namespace Microsoft.Storage"
+    exit 1
+  fi
+else
+  success "Microsoft.Storage リソースプロバイダーは既に登録されています"
+fi
+
+# ==============================================================================
 # Create Storage Account
 # ==============================================================================
 info "Storage Accountを作成中..."
 if az storage account show --name "$STORAGE_ACCOUNT_NAME" --resource-group "$STATE_RESOURCE_GROUP_NAME" &> /dev/null; then
   warning "Storage Account '$STORAGE_ACCOUNT_NAME' は既に存在します"
 else
-  az storage account create \
+  if ! az storage account create \
     --name "$STORAGE_ACCOUNT_NAME" \
     --resource-group "$STATE_RESOURCE_GROUP_NAME" \
     --location "$LOCATION" \
@@ -194,7 +237,12 @@ else
     --https-only true \
     --min-tls-version TLS1_2 \
     --allow-blob-public-access false \
-    --output none
+    --output none; then
+    error "Storage Account '$STORAGE_ACCOUNT_NAME' の作成に失敗しました"
+    error "現在のサブスクリプション: $(az account show --query id -o tsv 2>/dev/null || echo '不明')"
+    error "リソースプロバイダーの状態: $(az provider show --namespace Microsoft.Storage --query 'registrationState' -o tsv 2>/dev/null || echo '不明')"
+    exit 1
+  fi
   success "Storage Account '$STORAGE_ACCOUNT_NAME' 作成完了"
 fi
 
