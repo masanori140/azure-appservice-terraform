@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、Claude Code (claude.ai/code) がこのリポジトリのコードを扱う際のガイダンスを提供します。
 
 ## プロジェクト概要
 
@@ -24,7 +24,7 @@ terraform/
 - **modules層**: `module`ブロックのみ（`resource`ブロックは使用禁止）
 - **environments層**: Terragrunt設定のみ
 
-詳細なコーディング規約は `TERRAFORM_GUIDE.md` を参照してください。
+詳細なコーディング規約は `docs/CODING_STANDARDS.md` を参照してください。
 
 ### コンテナ化されたワークフロー
 
