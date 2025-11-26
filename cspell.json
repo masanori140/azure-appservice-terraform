@@ -1,7 +1,27 @@
 {
   "version": "0.2",
   "language": "en",
-  "words": ["appservice", "japaneast", "satfstate", "tfstate", "tfvars"],
+  "words": [
+    "appgw",
+    "appservice",
+    "appuser",
+    "autoremove",
+    "azuread",
+    "dearmor",
+    "japaneast",
+    "dockerfile",
+    "kenja",
+    "keyrings",
+    "myapp",
+    "noninteractive",
+    "pipefail",
+    "satfstate",
+    "satfstatedev",
+    "snet",
+    "tfstate",
+    "tfvars",
+    "vnet"
+  ],
   "ignoreWords": [],
   "ignorePaths": ["sp-credentials.json"]
 }
