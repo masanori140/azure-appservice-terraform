@@ -1,5 +1,6 @@
 ARG TERRAFORM_VERSION=1.13.4
 ARG TERRAGRUNT_VERSION=0.91.4
+ARG TFLINT_VERSION=0.54.0
 
 FROM debian:bookworm-slim
 SHELL ["/bin/bash","-o","pipefail","-c"]
@@ -7,6 +8,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 ARG TERRAFORM_VERSION
 ARG TERRAGRUNT_VERSION
+ARG TFLINT_VERSION
 
 WORKDIR /app
 
@@ -50,6 +52,17 @@ RUN set -eux; \
     mv terragrunt_linux_amd64 /usr/local/bin/terragrunt; \
     chmod +x /usr/local/bin/terragrunt; \
     rm -f terragrunt_SHA256SUMS
+
+RUN set -eux; \
+    TFLINT_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_amd64.zip"; \
+    TFLINT_SUMS_URL="https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/checksums.txt"; \
+    cd /tmp; \
+    curl -fsSLo tflint_linux_amd64.zip "${TFLINT_URL}"; \
+    curl -fsSLo tflint_checksums.txt "${TFLINT_SUMS_URL}"; \
+    grep "tflint_linux_amd64.zip" tflint_checksums.txt | sha256sum -c -; \
+    unzip tflint_linux_amd64.zip -d /usr/local/bin/; \
+    rm -f tflint_linux_amd64.zip tflint_checksums.txt; \
+    chmod +x /usr/local/bin/tflint
 
 RUN apt-get remove -y wget unzip gnupg lsb-release && \
     apt-get autoremove -y && \

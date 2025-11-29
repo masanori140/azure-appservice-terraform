@@ -28,7 +28,7 @@ tasks:
       - "{{.docker_run}} bash"
 
   # ==============================================================================
-  # Terragrunt Format
+  # Format
   # ==============================================================================
 
   format:
@@ -36,7 +36,19 @@ tasks:
     cmds:
       - >
         {{.docker_run}} bash -c
-        'terragrunt hclfmt /app/terraform'
+        'terragrunt hcl fmt /app/terraform'
+
+  # ==============================================================================
+  # Lint
+  # ==============================================================================
+
+  lint:
+    desc: Run tflint on all resources and modules recursively
+    cmds:
+      - >
+        {{.docker_run}} bash -c
+        'tflint --init --config /app/.tflint.hcl &&
+        tflint --config /app/.tflint.hcl --chdir /app/terraform --recursive'
 
   # ==============================================================================
   # Terragrunt Commands

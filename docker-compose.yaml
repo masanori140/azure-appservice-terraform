@@ -12,3 +12,4 @@ services:
       ARM_TENANT_ID: ${ARM_TENANT_ID}
     volumes:
       - ./terraform:/app/terraform
+      - ./.tflint.hcl:/app/.tflint.hcl
